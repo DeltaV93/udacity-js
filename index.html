@@ -12,6 +12,10 @@
             width: 100px;
             background-color: lightblue;
         }
+        input {
+            position: relative;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -23,10 +27,29 @@
         <h2 id="cat-name"></h2>
         <p id="cat-counter"></p>
     </div>
+    <div id="admin">
+        <button id="admin-button">Admin</button>
+        <div id="admin-display">
+            <form>
+                <label for="name">Name</label>
+                <input type="text" id="name" />
+
+                <label for="image">Image</label>
+                <input type="text" id="image" />
+
+                <label for="clickCount">Clicks</label>
+                <input type="text" id="clickCount" />
+                <button id="cancel" type="button">Cancel</button>
+                <button id="save" type="button">Save</button>
+            </form>
+
+        </div>
+    </div>
 
 <script>
     var model = {
         activeCat: null,
+        adminDisplay: null,
         cats:  [
             {
                 name: "Cat 1",
@@ -57,6 +80,7 @@
 
             listView.init();
             catView.init();
+            adminView.init();
         },
         getCurrentCat: function(){
             return model.activeCat;
@@ -69,6 +93,23 @@
         },
         incrementClickCount: function(){
             model.activeCat.clickCount ++;
+            catView.renderCat();
+            adminView.render();
+        },
+        changeAdminDisplay: function(){
+            model.adminDisplay = !model.adminDisplay;
+        },
+        getAdminDisplay: function(){
+            return model.adminDisplay;
+        },
+        updateCatInfo: function(name, img, clicks){
+            var cat = this.getCurrentCat();
+            cat.name = name;
+            cat.image = img;
+            cat.clickCount = clicks;
+
+            adminView.render();
+            listView.renderList();
             catView.renderCat();
         }
 
@@ -131,6 +172,7 @@
                     return function() {
                         controller.setCurrentCat(catCopy);
                         catView.renderCat();
+                        adminView.render();
                     };
                 })(cat));
 
@@ -171,6 +213,46 @@
             this.catImg.attr("src", currentCat.image);
         }
     };
+
+    var adminView = {
+        init: function(){
+            model.adminDisplay = false;
+
+            $("#admin-button").on("click", function(){
+               controller.changeAdminDisplay();
+               adminView.render();
+            });
+
+            $("#cancel").on("click", function(){
+               controller.changeAdminDisplay();
+               adminView.render();
+            });
+            $("#save").on("click", function(){
+
+                var name = $("#name").val();
+                var image = $("#image").val();
+                var click = $("#clickCount").val();
+
+                controller.updateCatInfo(name,image,click);
+
+            });
+
+          this.render();
+        },
+        render: function(){
+            if(controller.getAdminDisplay()){
+                $("#admin-display").show();
+                var currentCat = controller.getCurrentCat();
+
+                $("#name").val(currentCat.name);
+                $("#image").val(currentCat.image);
+                $("#clickCount").val(currentCat.clickCount);
+
+            } else {
+                $("#admin-display").hide();
+            }
+        }
+    }
 
 controller.init();
 
