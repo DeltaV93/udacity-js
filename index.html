@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cat Clicker</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+    <style>
+        #cat-img{
+            height: 100px;
+            width: 100px;
+            background-color: lightblue;
+        }
+    </style>
+</head>
+<body>
+    <div id="cats-list">
+    </div>
+    <div id="main-display">
+        <img id="cat-img" src="cat_picture1.jpg" alt="">
+        <!--<div id="cat-img"></div>-->
+        <h2 id="cat-name"></h2>
+        <p id="cat-counter"></p>
+    </div>
+
+<script>
+    var model = {
+        activeCat: null,
+        cats:  [
+            {
+                name: "Cat 1",
+                image: "cat_picture1.jpg",
+                clickCount: 0
+            },
+            {
+                name: "Cat 2",
+                image: "cat_picture2.jpeg",
+                clickCount: 0
+            },
+            {
+                name: "Cat 3",
+                image: "cat_picture3.jpeg",
+                clickCount: 0
+            },
+            {
+                name: "Cat 4",
+                image: "cat_picture4.jpeg",
+                clickCount: 0
+            }
+        ]
+    };
+
+    var controller = {
+        init: function(){
+            listView.init();
+            catView.init();
+
+            model.activeCat = model.cats[1];
+            console.log(model.cats[1]);
+
+        },
+        getCurrentCat: function(){
+            console.log("active CAT");
+            console.log(model.activeCat);
+            return model.activeCat;
+        },
+        getCats: function(){
+            return model.cats;
+        },
+        setCurrentCat: function(cat){
+          model.activeCat = cat;
+        },
+        incrementClickCount: function(){
+            model.activeCat.clickCount ++;
+            catView.renderCat();
+        }
+
+    };
+
+    var listView = {
+        init: function(){
+            this.renderList();
+        },
+
+        renderList: function(){
+            var cat;
+            var cats = controller.getCats();
+            var elem = document.getElementsByClassName('cat');
+
+            for(i = 0; i < cats.length; i++){
+                cat = cats[i];
+
+
+                document.getElementsByClassName('cat').addEventListener('click', (function(catCopy) {
+                    return function() {
+                        controller.setCurrentCat(catCopy);
+                        catView.renderCat();
+                    };
+                })(cat));
+
+                $("#cats-list").append('<p class="cat">' + cat.name + '</p>');
+            }
+        }
+    };
+
+    var catView = {
+        init: function(){
+
+            $("#cat-img").on("click", function(){
+                controller.incrementClickCount();
+            });
+
+            catView.renderCat();
+        },
+        renderCat: function(){
+            var currentCat = controller.getCurrentCat();
+
+//
+//            $('#cat-counter').html(currentCat.clickCount);
+//            $('#cat-name').html(currentCat.name);
+//            $('#cat-img').attr("src", currentCat.count);
+        }
+    };
+
+controller.init();
+
+</script>
+</body>
+</html>
