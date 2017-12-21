@@ -53,16 +53,12 @@
 
     var controller = {
         init: function(){
+            model.activeCat = model.cats[0];
+
             listView.init();
             catView.init();
-
-            model.activeCat = model.cats[1];
-            console.log(model.cats[1]);
-
         },
         getCurrentCat: function(){
-            console.log("active CAT");
-            console.log(model.activeCat);
             return model.activeCat;
         },
         getCats: function(){
@@ -80,26 +76,76 @@
 
     var listView = {
         init: function(){
+            this.catList = document.getElementById("cats-list");
             this.renderList();
         },
+        render: function() {
+            var cat, elem, i;
+            // get the cats we'll be rendering from the octopus
+            var cats = octopus.getCats();
 
-        renderList: function(){
-            var cat;
-            var cats = controller.getCats();
-            var elem = document.getElementsByClassName('cat');
+            // empty the cat list
+            this.catListElem.innerHTML = '';
 
-            for(i = 0; i < cats.length; i++){
+            // loop over the cats
+            for (i = 0; i < cats.length; i++) {
+                // this is the cat we're currently looping over
                 cat = cats[i];
 
+                // make a new cat list item and set its text
+                elem = document.createElement('li');
+                elem.textContent = cat.name;
 
-                document.getElementsByClassName('cat').addEventListener('click', (function(catCopy) {
+                // on click, setCurrentCat and render the catView
+                // (this uses our closure-in-a-loop trick to connect the value
+                //  of the cat variable to the click event function)
+                elem.addEventListener('click', (function(catCopy) {
+                    return function() {
+                        octopus.setCurrentCat(catCopy);
+                        catView.render();
+                    };
+                })(cat));
+
+                // finally, add the element to the list
+                this.catListElem.appendChild(elem);
+            }
+        },
+        renderList: function(){
+            var cat, elem, i;
+            var catList = document.getElementById("cats-list");
+            var cats = controller.getCats();
+
+            // empty the cat list
+            catList.innerHTML = '';
+
+            for(i = 0; i < cats.length; i++){
+
+                cat = cats[i];
+
+                elem = document.createElement('p');
+                elem.textContent = cat.name;
+
+                $("#cats-list").append('<p></p>');
+
+                elem.addEventListener('click', (function(catCopy) {
                     return function() {
                         controller.setCurrentCat(catCopy);
                         catView.renderCat();
                     };
                 })(cat));
 
-                $("#cats-list").append('<p class="cat">' + cat.name + '</p>');
+//                $('p').on("click", (function(cat) {
+//                    return function() {
+//                        controller.setCurrentCat(cat);
+//                        catView.renderCat();
+//                        console.log(cat);
+//                    };
+//                })(cat));
+
+                // create the list
+                catList.appendChild(elem);
+//                elem = $('<p class="cat">' + cat.name+ '</p>').appendTo("#cat-list");
+
             }
         }
     };
@@ -111,15 +157,18 @@
                 controller.incrementClickCount();
             });
 
-            catView.renderCat();
+            // using 'this' means you only grab the variable once and not every time the function is called
+            this.catCount = $('#cat-counter');
+            this.catName = $('#cat-name');
+            this.catImg = $('#cat-img');
+            this.renderCat();
         },
         renderCat: function(){
             var currentCat = controller.getCurrentCat();
 
-//
-//            $('#cat-counter').html(currentCat.clickCount);
-//            $('#cat-name').html(currentCat.name);
-//            $('#cat-img').attr("src", currentCat.count);
+            this.catCount.html(currentCat.clickCount);
+            this.catName.html(currentCat.name);
+            this.catImg.attr("src", currentCat.image);
         }
     };
 
